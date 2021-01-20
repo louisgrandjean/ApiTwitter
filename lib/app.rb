@@ -4,6 +4,7 @@ require 'twitter'#Apelle la gem Twitter
 
 
 
+
 	def login
 	client = Twitter::REST::Client.new do |config|
     config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
@@ -45,7 +46,36 @@ require 'twitter'#Apelle la gem Twitter
       client.retweet(tweets)
     end
 
-		follow_user
+    def streaming_login
+        @client_live = Twitter::Streaming::Client.new do |config|
+          config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
+          config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
+          config.access_token        = ENV["TWITTER_ACCESS_TOKEN"]
+          config.access_token_secret = ENV["TWITTER_ACCESS_TOKEN_SECRET"]
+        end
+    end
+
+    def streaming
+      client = login
+      @client_live.filter(track: "#bonjour_monde") do |object|
+      puts object.text if object.is_a?(Twitter::Tweet)
+      puts object.user.screen_name
+      client.favorite(object)
+      client.follow(object.user.screen_name)
+    end
+    end
+
+    def perform
+      login
+      #favorites_tweets
+      #follow_user
+      #rt_tweets
+      streaming_login
+      streaming
+    end
+    perform
+
+    
 
 
         
